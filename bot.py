@@ -2,18 +2,17 @@ import sqlite3
 import logging
 import os
 from typing import List, NamedTuple, Optional
-
+import tasks
 import aiohttp
 from aiogram import Bot, Dispatcher, executor, types
 
 logging.basicConfig(level=logging.INFO)
 
 API_TOKEN = os.getenv("TELEGRAM_API_TOKEN")
+#API_TOKEN = ""
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
-
-tasks = []
 
 
 def extract_args(args):
@@ -28,18 +27,29 @@ async def process_start_command(message: types.Message):
 @dp.message_handler(commands=['new'])
 async def add_task(message: types.Message):
     args = extract_args(message.text)
-    tasks.append(tuple([args[1], args[2:]]))
-    await message.reply(f'{tasks[-1]} added')
+    try:
+        task = tasks.add_task(args)
+    except tasks.NotCorrectMessage as e:
+        await message.answer(str(e))
+        return None
+    await message.reply(f'Task {task.text} added')
 
 
 @dp.message_handler(lambda message: message.text.startswith('/del'))
 async def del_task(message: types.Message):
-    pass
+    row_id = int(message.text[4:])
+    tasks.delete_task(row_id)
+    answer_message = "Удалил"
+    await message.answer(answer_message)
 
 
 @dp.message_handler(commands=['all'])
 async def show_all_tasks(message: types.Message):
-    pass
+    all_tasks = tasks.get_all_tasks()
+    all_tasks_message = [f"{task.text} — {task.category}. Type /del{task.id} for deleting" for task in all_tasks]
+    answer_message = "\n\n".join(all_tasks_message)
+
+    await message.answer(answer_message)
 
 
 @dp.message_handler(commands=['daily'])
