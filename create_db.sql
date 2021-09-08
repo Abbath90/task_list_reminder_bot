@@ -14,7 +14,7 @@ create table tasks(
 
 insert into category (id, name, aliases)
 values
-    (0, "daily", "daily, d"),
-    (1, "hourly", "hourly, h"),
-    (2, "single", "single, s, one"),
-    (3, "alarm", "alarm, a");
+    (0, "daily", "daily d"),
+    (1, "hourly", "hourly h"),
+    (2, "single", "single s one"),
+    (3, "alarm", "alarm a");

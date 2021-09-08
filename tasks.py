@@ -18,23 +18,23 @@ class NotCorrectMessage(Exception):
 
 @dataclass
 class Message:
-    category_id: str
+    category_id: int
     text: str
 
 
 @dataclass
 class Task:
     id: int
-    category: int
+    category_id: int
     text: str
 
 
 def add_task(raw_message_elements):
     parsed_message = _parse_message(raw_message_elements)
-    category = parsed_message.category
+    category_id = parsed_message.category_id
     text = parsed_message.text
-    db_wrapper.insert_to_db('tasks', {'created': _get_now_formatted(), 'category': category, 'text': text})
-    return Task(id=None, category=category, text=text)
+    db_wrapper.insert_to_db('tasks', {'created': _get_now_formatted(), 'category_id': category_id, 'text': text})
+    return Task(id=None, category_id=category_id, text=text)
 
 
 def delete_task(row_id: int) -> None:
@@ -43,7 +43,8 @@ def delete_task(row_id: int) -> None:
 
 def get_all_tasks():
     rows = db_wrapper.select_all()
-    return [Task(id=row[0], category=row[1], text=row[2]) for row in rows]
+    return [Task(id=row[0], category_id=row[1], text=row[2]) for row in rows]
+
 
 def _parse_message(raw_message_elements: list) -> Message:
     category = raw_message_elements[0]

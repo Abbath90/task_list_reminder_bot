@@ -24,3 +24,9 @@ def select_all():
     cursor.execute("SELECT t.id, c.name, t.text FROM tasks t LEFT JOIN category c ON t.category_id=c.id ;")
     rows = cursor.fetchall()
     return rows
+
+
+def select_category_aliases_list():
+    cursor.execute("SELECT name, aliases FROM category;")
+    rows = cursor.fetchall()
+    return rows

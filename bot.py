@@ -3,6 +3,7 @@ import logging
 import os
 from typing import List, NamedTuple, Optional
 import tasks
+import categories
 import aiohttp
 from aiogram import Bot, Dispatcher, executor, types
 
@@ -43,10 +44,21 @@ async def del_task(message: types.Message):
     await message.answer(answer_message)
 
 
+@dp.message_handler(commands=['cat'])
+async def show_category_info(message: types.Message):
+    category_list = categories.get_category_aliases()
+
+    all_category_message = [f"{category.name}  —  for show all {category.name} tasks type {' '.join([f'/{alias}' for alias in category.aliases])}" \
+                            for category in category_list]
+    answer_message = "\n\n".join(all_category_message)
+
+    await message.answer(answer_message)
+
+
 @dp.message_handler(commands=['all'])
 async def show_all_tasks(message: types.Message):
     all_tasks = tasks.get_all_tasks()
-    all_tasks_message = [f"{task.text} — {task.category}. Type /del{task.id} for deleting" for task in all_tasks]
+    all_tasks_message = [f"{task.text} — {task.category_id}. Type /del{task.id} for deleting" for task in all_tasks]
     answer_message = "\n\n".join(all_tasks_message)
 
     await message.answer(answer_message)
