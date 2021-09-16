@@ -9,14 +9,23 @@ class Category:
     aliases: tuple
 
 
-def get_category_aliases():
+def get_category_list():
     category_list = db_wrapper.select_category_aliases_list()
 
-    return [Category(id=None, name=category[0], aliases=category[1].split()) for category in category_list]
+    return [Category(id=int(category[0]), name=category[1], aliases=category[2].split()) for category in category_list]
 
 
-def get_category_id(category_alias):
-    category_id = db_wrapper.select_category
+def get_category_id(checking_alias):
+    category_list = get_category_list()
+    for category in category_list:
+        if checking_alias in category.aliases:
+            return category.id
+
+
+def get_category_aliases_list():
+    category_list = get_category_list()
+    return [alias for category in category_list for alias in category.aliases]
+
 
 
 

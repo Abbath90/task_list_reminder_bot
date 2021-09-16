@@ -21,12 +21,20 @@ def delete_from_db(table: str, row_id: int) -> None:
 
 
 def select_all():
-    cursor.execute("SELECT t.id, c.name, t.text FROM tasks t LEFT JOIN category c ON t.category_id=c.id ;")
+    cursor.execute("SELECT t.id, c.name, t.text FROM tasks t LEFT JOIN category c ON t.category_id=c.id;")
+    rows = cursor.fetchall()
+    return rows
+
+
+def select_category(category_id):
+    cursor.execute(f"SELECT t.id, c.name, t.text FROM tasks t LEFT JOIN category c ON t.category_id=c.id WHERE t.category_id={category_id};")
     rows = cursor.fetchall()
     return rows
 
 
 def select_category_aliases_list():
-    cursor.execute("SELECT name, aliases FROM category;")
+    cursor.execute("SELECT id, name, aliases FROM category;")
     rows = cursor.fetchall()
     return rows
+
+

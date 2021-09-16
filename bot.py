@@ -10,7 +10,7 @@ from aiogram import Bot, Dispatcher, executor, types
 logging.basicConfig(level=logging.INFO)
 
 API_TOKEN = os.getenv("TELEGRAM_API_TOKEN")
-#API_TOKEN = ""
+#API_TOKEN =
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
@@ -46,7 +46,7 @@ async def del_task(message: types.Message):
 
 @dp.message_handler(commands=['cat'])
 async def show_category_info(message: types.Message):
-    category_list = categories.get_category_aliases()
+    category_list = categories.get_category_list()
 
     all_category_message = [f"{category.name}  —  for show all {category.name} tasks type {' '.join([f'/{alias}' for alias in category.aliases])}" \
                             for category in category_list]
@@ -64,24 +64,28 @@ async def show_all_tasks(message: types.Message):
     await message.answer(answer_message)
 
 
-@dp.message_handler(commands=['daily'])
+'''@dp.message_handler(commands=['ali'])
+async def _show_catigory_aliases(message: types.Message):
+    answer_message = ", ".join(categories.get_category_aliases_list())
+
+    await message.answer(answer_message)'''
+
+
+@dp.message_handler(commands=categories.get_category_aliases_list())
 async def show_daily_tasks(message: types.Message):
-    pass
+    alias = message.text.split()[0]
+    if alias in ['/daily', '/d']:
+        category_tasks = tasks.get_category_tasks('daily')
+    elif alias in ['/hourly', '/h']:
+        category_tasks = tasks.get_category_tasks('hourly')
+    elif alias in ['/single', '/s', '/one']:
+        category_tasks = tasks.get_category_tasks('single')
+    elif alias in ['/alarm', '/a']:
+        category_tasks = tasks.get_category_tasks('alarm')
+    tasks_message = [f"{task.text} — {task.category_id}. Type /del{task.id} for deleting" for task in category_tasks]
+    answer_message = "\n\n".join(tasks_message)
 
-
-@dp.message_handler(commands=['hourly'])
-async def show_hourly_tasks(message: types.Message):
-    pass
-
-
-@dp.message_handler(commands=['single'])
-async def show_single_tasks(message: types.Message):
-    pass
-
-
-@dp.message_handler(commands=['alarm'])
-async def show_alarm_tasks(message: types.Message):
-    pass
+    await message.answer(answer_message)
 
 
 @dp.message_handler(commands=['change'])
