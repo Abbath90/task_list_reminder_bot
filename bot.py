@@ -1,16 +1,17 @@
 import sqlite3
 import logging
-import os
-from typing import List, NamedTuple, Optional
 import tasks
+import os
 import categories
-import aiohttp
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiogram import Bot, Dispatcher, executor, types
+
 
 logging.basicConfig(level=logging.INFO)
 
 API_TOKEN = os.getenv("TELEGRAM_API_TOKEN")
-#API_TOKEN =
+USER_ID = os.getenv("TELEGRAM_USER_ID")
+
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
@@ -25,7 +26,7 @@ async def process_start_command(message: types.Message):
     await message.reply("Привет!\nНапиши мне что-нибудь!")
 
 
-@dp.message_handler(commands=['new'])
+@dp.message_handler(commands=['new', 'add'])
 async def add_task(message: types.Message):
     args = extract_args(message.text)
     try:
@@ -64,15 +65,15 @@ async def show_all_tasks(message: types.Message):
     await message.answer(answer_message)
 
 
-'''@dp.message_handler(commands=['ali'])
-async def _show_catigory_aliases(message: types.Message):
+@dp.message_handler(commands=['ali'])
+async def _show_category_aliases(message: types.Message):
     answer_message = ", ".join(categories.get_category_aliases_list())
 
-    await message.answer(answer_message)'''
+    await message.answer(answer_message)
 
 
 @dp.message_handler(commands=categories.get_category_aliases_list())
-async def show_daily_tasks(message: types.Message):
+async def show_category_tasks(message: types.Message):
     alias = message.text.split()[0]
     if alias in ['/daily', '/d']:
         category_tasks = tasks.get_category_tasks('daily')
@@ -114,5 +115,21 @@ async def change_alarm_frequency(message: types.Message):
     pass
 
 
+async def remind_tasks(freq):
+    reminder_tasks = tasks.get_category_tasks(freq)
+    if reminder_tasks:
+        tasks_message = [f"You need to do {task.category_id} {task.text}. Type /del{task.id} for deleting" for task in
+                         reminder_tasks]
+        answer_message = "\n\n".join(tasks_message)
+        await bot.send_message(USER_ID, answer_message)
+
+
 if __name__ == '__main__':
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(remind_tasks, 'interval', seconds=4, args=('alarm', ))
+    scheduler.add_job(remind_tasks, 'interval', seconds=7, args=('hourly', ))
+    scheduler.add_job(remind_tasks, 'interval', seconds=10, args=('daily',))
+    scheduler.start()
+
     executor.start_polling(dp, skip_updates=True)
+

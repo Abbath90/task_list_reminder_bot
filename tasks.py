@@ -6,12 +6,6 @@ import categories
 import pytz
 import datetime
 
-daily_aliases = ("daily", "d")
-hourly_aliases = ("hourly", "h")
-singe_aliases = ("single", "s", "one")
-alarm_aliases = ("alarm", "a")
-aliases = daily_aliases + hourly_aliases + singe_aliases + alarm_aliases
-
 
 class NotCorrectMessage(Exception):
     pass
