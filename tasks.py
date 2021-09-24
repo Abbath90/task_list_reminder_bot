@@ -1,10 +1,11 @@
+import datetime
 from dataclasses import dataclass
 from typing import List, NamedTuple, Optional
-import db_wrapper
-import categories
 
 import pytz
-import datetime
+
+import categories
+import db_wrapper
 
 
 class NotCorrectMessage(Exception):
@@ -31,7 +32,10 @@ def add_task(raw_message_elements):
     parsed_message = _parse_message(raw_message_elements)
     category_id = parsed_message.category_id
     text = parsed_message.text
-    db_wrapper.insert_to_db('tasks', {'created': _get_now_formatted(), 'category_id': category_id, 'text': text})
+    db_wrapper.insert_to_db(
+        "tasks",
+        {"created": _get_now_formatted(), "category_id": category_id, "text": text},
+    )
     return Task(id=None, category_id=category_id, text=text)
 
 
@@ -54,7 +58,7 @@ def get_category_tasks(category):
 
 def _parse_message(raw_message_elements: list) -> Message:
     category = raw_message_elements[0]
-    text = ' '.join(raw_message_elements[1:])
+    text = " ".join(raw_message_elements[1:])
     if category not in _category_aliases_list or not text:
         raise NotCorrectMessage("Incorrect task")
     category_id = categories.get_category_id(category)
