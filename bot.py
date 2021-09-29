@@ -1,4 +1,5 @@
 import logging
+import os
 
 from aiogram import Bot, Dispatcher, executor, types
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -21,9 +22,16 @@ def extract_args(args):
     return args.split()[1:]
 
 
-@dp.message_handler(commands=["start"])
+@dp.message_handler(commands=["start", "help"])
 async def process_start_command(message: types.Message):
-    await message.reply("Привет!\nНапиши мне что-нибудь!")
+    await message.reply("Добавить новую задачу: /new (или /add) (имя категории) (текст задачи)\n"
+                        "Вывести все задачи: /all\n"
+                        "Вывести задачи определенной категории: /(имя категории)\n"
+                        "Удалить задачу: /del(номер задачи)\n"
+                        "Вывести все категории: /cat\n"
+                        "Изменить тип задачи: /change (номер задачи) (новая категория)\n"
+                        "Изменить частоту: TODO\n"
+                        "Show help: /help or /start")
 
 
 @dp.message_handler(commands=["new", "add"])
@@ -123,14 +131,15 @@ async def change_alarm_frequency(message: types.Message):
     pass
 
 
-async def remind_tasks(freq):
+async def remind_tasks(freq: str):
     reminder_tasks = tasks.get_category_tasks(freq)
     if reminder_tasks:
+        answer_message = f'Your {freq} tasks:\n'
         tasks_message = [
-            f"You need to do {task.category_id} {task.text}. Type /del{task.id} for deleting"
+            f"\b\b\b\b{task.text}.\b\b /del{task.id} — delete"
             for task in reminder_tasks
         ]
-        answer_message = "\n\n".join(tasks_message)
+        answer_message += "\n".join(tasks_message)
         await bot.send_message(USER_ID, answer_message)
 
 

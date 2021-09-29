@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 conn = sqlite3.connect(os.path.join("tasks.db"))
 cursor = conn.cursor()
@@ -19,7 +19,7 @@ def delete_from_db(table: str, row_id: int) -> None:
     conn.commit()
 
 
-def select_all():
+def select_all() -> List[str]:
     cursor.execute(
         "SELECT t.id, c.name, t.text FROM tasks t LEFT JOIN category c ON t.category_id=c.id;"
     )
@@ -27,7 +27,7 @@ def select_all():
     return rows
 
 
-def select_category(category_id):
+def select_category(category_id: int) -> List[str]:
     cursor.execute(
         f"SELECT t.id, c.name, t.text FROM tasks t LEFT JOIN category c ON t.category_id=c.id WHERE t.category_id={category_id};"
     )
@@ -35,7 +35,7 @@ def select_category(category_id):
     return rows
 
 
-def select_category_aliases_list():
+def select_category_aliases_list() -> List[str]:
     cursor.execute("SELECT id, name, aliases FROM category;")
     rows = cursor.fetchall()
     return rows

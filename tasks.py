@@ -1,6 +1,6 @@
 import datetime
 from dataclasses import dataclass
-from typing import List, NamedTuple, Optional
+from typing import List
 
 import pytz
 
@@ -28,7 +28,7 @@ class Task:
 _category_aliases_list = categories.get_category_aliases_list()
 
 
-def add_task(raw_message_elements):
+def add_task(raw_message_elements: List[str]) -> Task:
     parsed_message = _parse_message(raw_message_elements)
     category_id = parsed_message.category_id
     text = parsed_message.text
@@ -43,20 +43,20 @@ def delete_task(row_id: int) -> None:
     db_wrapper.delete_from_db("tasks", row_id)
 
 
-def get_all_tasks():
+def get_all_tasks() -> List[Task]:
     rows = db_wrapper.select_all()
 
     return [Task(id=row[0], category_id=row[1], text=row[2]) for row in rows]
 
 
-def get_category_tasks(category):
+def get_category_tasks(category: str) -> List[Task]:
     category_id = categories.get_category_id(category)
     rows = db_wrapper.select_category(category_id)
 
     return [Task(id=row[0], category_id=row[1], text=row[2]) for row in rows]
 
 
-def _parse_message(raw_message_elements: list) -> Message:
+def _parse_message(raw_message_elements: List[str]) -> Message:
     category = raw_message_elements[0]
     text = " ".join(raw_message_elements[1:])
     if category not in _category_aliases_list or not text:
